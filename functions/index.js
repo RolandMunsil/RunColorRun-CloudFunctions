@@ -17,7 +17,7 @@ exports.resetDatabaseForNewRound = functions.https.onRequest((request, response)
     }
 
     // Fill the usersGroupedByRegion array with the users.
-    // Each element of the array corresponds to a region. The elements are just 
+    // Each element of the array corresponds to a region. The elements are just
     // arrays of user ids.
     Object.keys(db.users).forEach(userKey => {
       let reg = db.users[userKey].currentRegion;
@@ -75,3 +75,13 @@ exports.resetDatabaseForNewRound = functions.https.onRequest((request, response)
     return response.send("If you can see this then the code completed executing.");
   });
 });
+
+exports.updateUserTeam = functions.database.ref('/users/{userID}').onCreate((snapshot, context) => {
+      // Grab the current value of what was written to the Realtime Database.
+      var user = snapshot.val();
+      console.log(context.params.userID);
+      return admin.database().ref('teams/' + user.currentRegion +
+                                '/' + user.currentTeam +
+                                '/' + context.params.userID)
+        .set(context.params.userID);
+  });
